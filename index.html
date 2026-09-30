@@ -1,520 +1,63 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shakil Store | Online Shopping</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shakil Store</title>
 <style>
-:root {
-  --brand: #176b50;
-  --dark: #18231e;
-  --muted: #6b756f;
-  --bg: #f6f8f5;
-  --white: #fff;
-  --line: #e5eae5;
-}
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  color: var(--dark);
-  background: var(--bg);
-}
-button, input, select { font: inherit; }
-button { cursor: pointer; }
-a { color: inherit; text-decoration: none; }
-.topbar {
-  background: var(--brand); color: white;
-  text-align: center; padding: 9px;
-  font-size: 13px;
-}
-header {
-  background: white; border-bottom: 1px solid var(--line);
-  position: sticky; top: 0; z-index: 5;
-}
-.nav {
-  max-width: 1200px; margin: auto; padding: 16px 20px;
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 15px;
-}
-.logo { font-size: 23px; font-weight: 800; color: var(--brand); }
-.navlinks { display: flex; align-items: center; gap: 22px; }
-.cart-button, .primary, .secondary {
-  border: 0; border-radius: 9px; padding: 12px 16px;
-  font-weight: 700;
-}
-.cart-button, .primary { background: var(--brand); color: white; }
-.secondary { background: #edf3ef; color: var(--brand); }
-main { max-width: 1200px; margin: auto; padding: 24px 20px 55px; }
-.hero {
-  background: #e3eee6; border-radius: 22px; overflow: hidden;
-  display: grid; grid-template-columns: 1.1fr .9fr;
-  min-height: 310px; align-items: center;
-}
-.hero-copy { padding: 38px; }
-.eyebrow {
-  color: var(--brand); text-transform: uppercase;
-  letter-spacing: 2px; font-size: 12px; font-weight: 800;
-}
-h1 { font-size: clamp(32px, 5vw, 54px); line-height: 1.08; margin: 15px 0; }
-.hero p { color: #58665d; line-height: 1.7; }
-.hero img { width: 100%; height: 310px; object-fit: cover; }
-.section-heading {
-  display: flex; justify-content: space-between;
-  align-items: center; gap: 15px; margin: 34px 0 18px;
-}
-.section-heading h2 { margin: 0; font-size: 25px; }
-.filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 17px; }
-.filter {
-  border: 1px solid var(--line); border-radius: 30px;
-  background: white; padding: 9px 14px; color: var(--dark);
-}
-.filter.active { background: var(--brand); color: white; border-color: var(--brand); }
-.search { display: flex; gap: 8px; width: min(100%, 360px); }
-.search input {
-  width: 100%; min-width: 0; border: 1px solid var(--line);
-  border-radius: 9px; padding: 11px 13px; background: white;
-}
-.products {
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
-}
-.product {
-  background: white; border: 1px solid var(--line);
-  border-radius: 15px; overflow: hidden; min-width: 0;
-  transition: transform .18s;
-}
-.product:hover { transform: translateY(-3px); }
-.product img { display: block; width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #edf0ed; }
-.product-info { padding: 14px; }
-.tag { color: var(--brand); font-size: 11px; font-weight: 800; text-transform: uppercase; }
-.product h3 { font-size: 16px; margin: 7px 0; }
-.description { font-size: 13px; color: var(--muted); line-height: 1.5; min-height: 38px; }
-.price { font-size: 19px; font-weight: 800; margin: 12px 0; }
-.product-actions { display: flex; gap: 7px; }
-.product-actions button { flex: 1; padding: 10px 5px; font-size: 12px; }
-.empty { text-align: center; color: var(--muted); padding: 40px 10px; }
-.benefits {
-  margin-top: 36px; display: grid; grid-template-columns: repeat(3,1fr);
-  gap: 14px;
-}
-.benefit { background: white; border: 1px solid var(--line); padding: 20px; border-radius: 13px; }
-.benefit strong { display: block; margin: 8px 0; }
-.benefit p { color: var(--muted); font-size: 13px; line-height: 1.5; margin-bottom: 0; }
-footer { background: #182b23; color: white; padding: 34px 20px; }
-.footer-inner {
-  max-width: 1160px; margin: auto; display: flex;
-  justify-content: space-between; gap: 25px; flex-wrap: wrap;
-}
-footer p { color: #c6d4cb; line-height: 1.7; font-size: 14px; }
-footer a { color: white; text-decoration: underline; }
-.overlay {
-  display: none; position: fixed; inset: 0; z-index: 10;
-  background: #0008; justify-content: flex-end;
-}
-.overlay.open { display: flex; }
-.drawer {
-  background: white; width: min(100%, 440px); height: 100%;
-  overflow-y: auto; padding: 22px;
-}
-.drawer-head { display: flex; justify-content: space-between; align-items: center; }
-.drawer-head h2 { margin: 0; }
-.close { border: 0; background: #edf1ed; border-radius: 50%; padding: 10px 13px; }
-.cart-row {
-  display: grid; grid-template-columns: 64px 1fr auto;
-  align-items: center; gap: 12px; padding: 15px 0;
-  border-bottom: 1px solid var(--line);
-}
-.cart-row img { width: 64px; height: 64px; object-fit: cover; border-radius: 9px; }
-.cart-row h4 { margin: 0 0 5px; }
-.cart-row p { margin: 0; color: var(--muted); font-size: 13px; }
-.qty { display: flex; align-items: center; gap: 9px; margin-top: 7px; }
-.qty button { border: 1px solid var(--line); background: white; border-radius: 5px; padding: 3px 9px; }
-.cart-total { display: flex; justify-content: space-between; font-size: 20px; font-weight: 800; padding: 20px 0; }
-.checkout-form { display: grid; gap: 11px; }
-.checkout-form label { font-size: 13px; font-weight: 700; }
-.checkout-form input, .checkout-form select, .checkout-form textarea {
-  width: 100%; padding: 12px; border: 1px solid #dce3dc;
-  border-radius: 8px; margin-top: 6px; background: white;
-}
-.checkout-form textarea { min-height: 75px; resize: vertical; }
-.checkout-form button { width: 100%; margin-top: 5px; }
-.small-note { color: var(--muted); font-size: 12px; line-height: 1.5; }
-@media (max-width: 850px) {
-  .products { grid-template-columns: repeat(3, minmax(0,1fr)); }
-  .hero-copy { padding: 25px; }
-}
-@media (max-width: 600px) {
-  .nav { padding: 13px 15px; }
-  .logo { font-size: 19px; }
-  .navlinks { gap: 10px; }
-  .navlinks a { display: none; }
-  main { padding: 17px 13px 40px; }
-  .hero { grid-template-columns: 1fr; }
-  .hero-copy { padding: 26px 22px; }
-  .hero img { height: 190px; }
-  .section-heading { align-items: flex-start; flex-direction: column; }
-  .search { width: 100%; }
-  .products { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
-  .product-info { padding: 10px; }
-  .product h3 { font-size: 14px; }
-  .description { font-size: 12px; }
-  .product-actions { flex-direction: column; }
-  .product-actions button { width: 100%; }
-  .benefits { grid-template-columns: 1fr; }
-}
+:root{--green:#176b50;--ink:#17231d;--muted:#66736b;--bg:#f5f7f4;--line:#e1e8e1}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;border-radius:9px;padding:11px 14px;font-weight:700}.primary{background:var(--green);color:#fff}.soft{background:#e8f0eb;color:var(--green)}header{background:#fff;position:sticky;top:0;border-bottom:1px solid var(--line);z-index:2}.nav,main,footer{max-width:1120px;margin:auto;padding:16px}.nav{display:flex;align-items:center;justify-content:space-between;gap:10px}.logo{font-size:22px;font-weight:800;color:var(--green)}.hero{background:#e4efe7;border-radius:18px;padding:28px;margin:16px 0}.hero h1{font-size:clamp(30px,6vw,48px);margin:8px 0}.hero p{line-height:1.6;color:#4f6256}.tools{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}.tools input{flex:1;min-width:180px}.field{width:100%;padding:12px;border:1px solid #d8e1d9;border-radius:8px;background:white}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.card{background:white;border:1px solid var(--line);border-radius:14px;overflow:hidden}.card img{width:100%;aspect-ratio:1;object-fit:cover;background:#e9eee9;cursor:pointer}.info{padding:12px}.info h3{margin:8px 0}.muted{color:var(--muted);font-size:13px;line-height:1.5}.price{font-size:19px;font-weight:800;margin:10px 0}.actions{display:flex;gap:7px}.actions button{flex:1;padding:10px 5px;font-size:12px}.panel{background:#fff;border:1px solid var(--line);padding:18px;border-radius:14px;margin:18px 0}.hidden{display:none!important}.options{display:grid;gap:10px;margin:12px 0}.option{border:1px solid var(--line);padding:12px;border-radius:10px;background:#fff}.row{display:flex;gap:10px;align-items:center}.row>*{flex:1;min-width:0}footer{color:var(--muted);font-size:13px}.notice{padding:12px;background:#fff5d9;border-radius:9px;font-size:13px;line-height:1.5}.authbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.authbar button{padding:9px 12px}.authform{display:grid;gap:10px;max-width:520px}.statuspill{display:inline-block;padding:4px 8px;border-radius:99px;background:#e8f0eb;color:#176b50;font-size:12px;font-weight:700}.itemline{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}@media(max-width:800px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:420px){.grid{gap:8px}.info{padding:9px}.actions{flex-direction:column}.hero{padding:20px}.nav{padding:12px}}
 </style>
 </head>
 <body>
-<div class="topbar">Welcome to our store · Easy ordering · Friendly service</div>
-
-<header>
-  <nav class="nav">
-    <a href="#" class="logo" id="brandName">Shakil Store</a>
-    <div class="navlinks">
-      <a href="#products">Shop</a>
-      <a href="#contact">Contact</a>
-      <button class="cart-button" onclick="openCart()">
-        🛒 Cart (<span id="cartCount">0</span>)
-      </button>
-    </div>
-  </nav>
-</header>
-
+<header><div class="nav"><a class="logo" href="#">Shakil Store</a><div class="authbar"><span id="authSummary" class="muted">Sign in to place an order</span><button id="accountButton" class="soft" type="button" onclick="showAccount()">Sign in / Create account</button><button class="primary" onclick="document.querySelector('#checkout').scrollIntoView({behavior:'smooth'})">Cart (<span id="count">0</span>)</button></div></div></header>
 <main>
-  <section class="hero">
-    <div class="hero-copy">
-      <div class="eyebrow">Welcome to our shop</div>
-      <h1>Find something<br>you'll love.</h1>
-      <p>Discover our collection of everyday essentials at prices you'll appreciate.</p>
-      <a href="#products"><button class="primary">Explore products →</button></a>
-    </div>
-    <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=900&q=80" alt="Modern retail store">
-  </section>
-
-  <section id="products">
-    <div class="section-heading">
-      <div>
-        <div class="eyebrow">Our collection</div>
-        <h2>Popular products</h2>
-      </div>
-      <div class="search">
-        <input id="searchInput" placeholder="Search products..." oninput="renderProducts()">
-      </div>
-    </div>
-    <div class="filters" id="filters"></div>
-    <div class="products" id="productGrid"></div>
-  </section>
-
-  <section class="benefits">
-    <div class="benefit">📦<strong>Simple ordering</strong><p>Choose your products and send your order directly to us.</p></div>
-    <div class="benefit">💬<strong>Friendly support</strong><p>Contact us if you have questions about a product.</p></div>
-    <div class="benefit">🔒<strong>Clear pricing</strong><p>Review your items and total before placing an order.</p></div>
-  </section>
-</main>
-
-<footer id="contact">
-  <div class="footer-inner">
-    <div>
-      <h2 id="footerName">Shakil Store</h2>
-      <p>Your friendly online shopping destination.</p>
-    </div>
-    <div>
-      <strong>Contact us</strong>
-      <p>Phone: <a id="phoneLink" href="tel:+8801XXXXXXXXX">+880 1XXXXXXXXX</a><br>
-      WhatsApp: <a id="whatsappLink" href="#" target="_blank">Chat with us</a><br>
-      Email: <a id="emailLink" href="mailto:your@email.com">your@email.com</a></p>
-    </div>
-  </div>
-  <div class="footer-inner"><p>© <span id="year"></span> <span id="copyrightName">Shakil Store</span>. All rights reserved.</p></div>
-</footer>
-
-<div class="overlay" id="cartOverlay" onclick="overlayClick(event)">
-  <aside class="drawer">
-    <div class="drawer-head">
-      <h2>Your cart</h2>
-      <button class="close" onclick="closeCart()" aria-label="Close cart">✕</button>
-    </div>
-    <div id="cartItems"></div>
-    <div class="cart-total"><span>Total</span><span id="cartTotal">৳0</span></div>
-    <h3>Checkout details</h3>
-    <form class="checkout-form" id="checkoutForm">
-      <label>Full name
-        <input name="customer" required placeholder="Your name">
-      </label>
-      <label>Phone number
-        <input name="phone" required inputmode="tel" placeholder="01XXXXXXXXX">
-      </label>
-      <label>Delivery address
-        <textarea name="address" required placeholder="House, road, area, district"></textarea>
-      </label>
-      <label>Payment method
-        <select name="payment">
-          <option>Cash on delivery (confirm with seller)</option>
-          <option>Mobile payment (arrange with seller)</option>
-          <option>Bank transfer (arrange with seller)</option>
-        </select>
-      </label>
-      <label>Extra instructions (optional)
-        <textarea name="notes" placeholder="Size, color, delivery instructions..."></textarea>
-      </label>
-      <button class="primary" type="submit">Place order on WhatsApp</button>
-      <p class="small-note">Your order will be sent to the shop's WhatsApp for confirmation. No payment is processed by this demo website.</p>
-    </form>
-  </aside>
-</div>
-
+<section id="accountPanel" class="panel">
+ <h2 id="authTitle">Customer account</h2>
+ <p class="muted">Create an account with your email address (Gmail works) and password. Sign in again anytime to see your orders.</p>
+ <div id="authForms">
+  <form id="signupForm" class="authform"><label>Email address</label><input class="field" name="email" type="email" required autocomplete="email" placeholder="you@gmail.com"><label>Password (at least 8 characters)</label><input class="field" name="password" type="password" required minlength="8" autocomplete="new-password" placeholder="Create a password"><button class="primary" type="submit">Create account</button><button class="soft" type="button" onclick="switchAuth('login')">Already have an account? Sign in</button></form>
+  <form id="loginForm" class="authform hidden"><label>Email address</label><input class="field" name="email" type="email" required autocomplete="email" placeholder="you@gmail.com"><label>Password</label><input class="field" name="password" type="password" required autocomplete="current-password" placeholder="Your password"><button class="primary" type="submit">Sign in</button><button class="soft" type="button" onclick="switchAuth('signup')">New here? Create account</button><button class="soft" type="button" onclick="resetPassword()">Forgot password?</button></form>
+ </div>
+ <div id="signedInPanel" class="hidden"><p>Signed in as <strong id="accountEmail"></strong></p><button class="soft" type="button" onclick="loadMyOrders()">Refresh my orders</button> <button class="soft" type="button" onclick="signOut()">Sign out</button><h3>My orders & tracking</h3><div id="myOrders">Your orders will appear here.</div></div>
+ <p id="authMessage" class="muted" role="status"></p>
+</section>
+<section class="hero"><small>WELCOME TO SHAKIL STORE</small><h1>Everyday finds.<br>Easy ordering.</h1><p>Browse our collection, add items to your cart, and choose mobile payment or cash on delivery.</p><a href="#products"><button class="primary">Shop products ↓</button></a></section>
+<section id="products"><h2>Products</h2><div class="tools"><input id="search" class="field" placeholder="Search products…" oninput="renderProducts()"><select id="category" class="field" onchange="renderProducts()"><option value="">All categories</option></select></div><div id="productsGrid" class="grid">Loading products…</div></section>
+<section id="checkout" class="panel"><h2>Your order</h2><div id="cartLines">Your cart is empty.</div><p><strong>Total: <span id="total">৳0</span></strong></p>
+<form id="orderForm"><p class="notice">You must be signed in to place an order. Your order history will be saved to your account.</p><div class="row"><input class="field" name="customer_name" required maxlength="100" placeholder="Full name"><input class="field" name="phone" type="tel" required inputmode="tel" autocomplete="tel" minlength="7" maxlength="20" placeholder="Phone number (required)"></div><p><textarea class="field" name="address" required maxlength="500" placeholder="Full delivery address"></textarea></p><label for="payment"><strong>Payment method</strong></label><select class="field" id="payment" name="payment_method" required onchange="toggleMfs()"><option value="cod">Cash on delivery</option><option value="bkash">bKash (MFS — manual verification)</option><option value="nagad">Nagad (MFS — manual verification)</option><option value="rocket">Rocket (MFS — manual verification)</option></select>
+<div id="mfsInstructions" class="notice hidden"><strong>Manual mobile payment</strong><p>Send the exact order total to the store's merchant/personal payment account shown below, using the correct Send Money/Payment option. Then enter the transaction ID. Your order remains pending until the admin verifies it.</p><p>Payment number: <strong id="payNumber">Set your number in config.js</strong></p><input class="field" name="transaction_id" maxlength="100" placeholder="Transaction ID (required for MFS)"></div>
+<p><label><input type="checkbox" required> I confirm the order details are correct.</label></p><button class="primary" type="submit">Place order</button><p id="formMessage" class="muted"></p></form>
+</section>
+<section class="panel"><h2>Contact</h2><p>Phone: <a id="contactPhone" href="#">Set your phone in config.js</a></p><p>WhatsApp: <a id="contactWA" href="#">Set your WhatsApp in config.js</a></p><p class="muted">MFS payments are manually verified. Never send anyone your PIN or OTP.</p></section>
+</main><footer>© <span id="year"></span> Shakil Store. Product prices and stock are confirmed by the store.</footer>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// ========== CHANGE YOUR STORE DETAILS HERE ==========
-const STORE = {
-  name: "Shakil Store",
-  whatsapp: "8801521727833",
-  phone: "+880 1521727833",
-  email: "102ssarkar@email.com"
-};
-
-
-const products = [
-  {
-    id: 1, name: "Classic Everyday Bag", category: "Fashion",
-    price: 1250, description: "A stylish bag for everyday use.",
-    image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=600&q=80"
-  },
-  {
-    id: 2, name: "Minimal Wrist Watch", category: "Accessories",
-    price: 1850, description: "A clean, timeless everyday look.",
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80"
-  },
-  {
-    id: 3, name: "Casual Sneakers", category: "Fashion",
-    price: 2200, description: "Comfortable style for daily wear.",
-    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80"
-  },
-  {
-    id: 4, name: "Wireless Headphones", category: "Electronics",
-    price: 1650, description: "Enjoy music and audio on the go.",
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80"
-  },
-  {
-    id: 5, name: "Everyday Backpack", category: "Accessories",
-    price: 1450, description: "A practical bag for work or travel.",
-    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80"
-  },
-  {
-    id: 6, name: "Classic Sunglasses", category: "Accessories",
-    price: 750, description: "An easy finishing toucsh to your outfit.",
-    image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=600&q=80"
-  },
-  {
-    id: 7, name: "Cotton T-Shirt", category: "Fashion",
-    price: 550, description: "A simple staple for everyday comfort.",
-    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80"
-  },
-  {
-    id: 8, name: "Portable Speaker", category: "Electronics",
-    price: 1350, description: "Bring your favorite music along.",
-    image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=600&q=80"
-  }
-];
-
-// Cart is saved in this browser on this device.
-let cart = {};
-let activeCategory = "All";
-
-try {
-  cart = JSON.parse(localStorage.getItem("shakilStoreCart") || "{}") || {};
-} catch (error) {
-  cart = {};
-}
-
-const money = amount => "৳" + amount.toLocaleString("en-BD");
-
-function saveCart() {
-  try {
-    localStorage.setItem("shakilStoreCart", JSON.stringify(cart));
-  } catch (error) {
-    // The cart still works for the current page session.
-  }
-  updateCartCount();
-}
-
-function setupStore() {
-  document.title = STORE.name + " | Online Shopping";
-  ["brandName", "footerName", "copyrightName"].forEach(id => {
-    document.getElementById(id).textContent = STORE.name;
-  });
-  document.getElementById("phoneLink").textContent = STORE.phone;
-  document.getElementById("phoneLink").href = "tel:" + STORE.phone.replace(/\s/g, "");
-  document.getElementById("emailLink").textContent = STORE.email;
-  document.getElementById("emailLink").href = "mailto:" + STORE.email;
-  const validWhatsApp = /^\d{10,15}$/.test(STORE.whatsapp);
-  const waLink = document.getElementById("whatsappLink");
-  waLink.href = validWhatsApp ? "https://wa.me/" + STORE.whatsapp : "#contact";
-  if (!validWhatsApp) waLink.removeAttribute("target");
-  document.getElementById("year").textContent = new Date().getFullYear();
-}
-
-function renderFilters() {
-  const categories = ["All", ...new Set(products.map(p => p.category))];
-  document.getElementById("filters").innerHTML = categories.map(category =>
-    `<button class="filter ${activeCategory === category ? "active" : ""}"
-      onclick="setCategory(${JSON.stringify(category)})">${category}</button>`
-  ).join("");
-}
-
-function setCategory(category) {
-  activeCategory = category;
-  renderFilters();
-  renderProducts();
-}
-
-function renderProducts() {
-  const search = document.getElementById("searchInput").value.trim().toLowerCase();
-  const filtered = products.filter(p =>
-    (activeCategory === "All" || p.category === activeCategory) &&
-    (p.name + " " + p.description + " " + p.category).toLowerCase().includes(search)
-  );
-  const grid = document.getElementById("productGrid");
-
-  if (!filtered.length) {
-    grid.innerHTML = '<div class="empty" style="grid-column:1/-1">No products found. Try another search.</div>';
-    return;
-  }
-
-  grid.innerHTML = filtered.map(p => `
-    <article class="product">
-      <img src="${p.image}" alt="${p.name}" loading="lazy"
-        onerror="this.onerror=null;this.src='https://placehold.co/600x600?text=Product'">
-      <div class="product-info">
-        <div class="tag">${p.category}</div>
-        <h3>${p.name}</h3>
-        <div class="description">${p.description}</div>
-        <div class="price">${money(p.price)}</div>
-        <div class="product-actions">
-          <button class="secondary" onclick="buyNow(${p.id})">Buy now</button>
-          <button class="primary" onclick="addToCart(${p.id})">Add to cart</button>
-        </div>
-      </div>
-    </article>
-  `).join("");
-}
-
-function addToCart(id) {
-  cart[id] = (cart[id] || 0) + 1;
-  saveCart();
-  renderCart();
-}
-
-function buyNow(id) {
-  addToCart(id);
-  openCart();
-}
-
-function changeQty(id, amount) {
-  cart[id] = (cart[id] || 0) + amount;
-  if (cart[id] <= 0) delete cart[id];
-  saveCart();
-  renderCart();
-}
-
-function removeItem(id) {
-  delete cart[id];
-  saveCart();
-  renderCart();
-}
-
-function updateCartCount() {
-  const count = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
-  document.getElementById("cartCount").textContent = count;
-}
-
-function renderCart() {
-  const items = products.filter(p => cart[p.id] > 0);
-  const container = document.getElementById("cartItems");
-
-  if (!items.length) {
-    container.innerHTML = '<div class="empty">Your cart is empty.<br>Choose a product to get started.</div>';
-  } else {
-    container.innerHTML = items.map(p => `
-      <div class="cart-row">
-        <img src="${p.image}" alt="${p.name}">
-        <div>
-          <h4>${p.name}</h4>
-          <p>${money(p.price)} each</p>
-          <div class="qty">
-            <button type="button" onclick="changeQty(${p.id},-1)">−</button>
-            <span>${cart[p.id]}</span>
-            <button type="button" onclick="changeQty(${p.id},1)">+</button>
-          </div>
-        </div>
-        <button type="button" class="close" aria-label="Remove ${p.name}"
-          onclick="removeItem(${p.id})">🗑</button>
-      </div>
-    `).join("");
-  }
-
-  const total = items.reduce((sum, p) => sum + p.price * cart[p.id], 0);
-  document.getElementById("cartTotal").textContent = money(total);
-  document.getElementById("checkoutForm").style.display = items.length ? "grid" : "none";
-}
-
-function openCart() {
-  renderCart();
-  document.getElementById("cartOverlay").classList.add("open");
-  document.body.style.overflow = "hidden";
-}
-
-function closeCart() {
-  document.getElementById("cartOverlay").classList.remove("open");
-  document.body.style.overflow = "";
-}
-
-function overlayClick(event) {
-  if (event.target.id === "cartOverlay") closeCart();
-}
-
-document.getElementById("checkoutForm").addEventListener("submit", function(event) {
-  event.preventDefault();
-
-  if (!Object.values(cart).some(qty => qty > 0)) {
-    alert("Your cart is empty.");
-    return;
-  }
-
-  if (!/^\d{10,15}$/.test(STORE.whatsapp)) {
-    alert("The store owner must add a valid WhatsApp number in the STORE settings before orders can be sent.");
-    return;
-  }
-
-  const form = new FormData(this);
-  const items = products.filter(p => cart[p.id] > 0);
-  const total = items.reduce((sum, p) => sum + p.price * cart[p.id], 0);
-
-  const lines = [
-    "NEW ORDER - " + STORE.name,
-    "",
-    ...items.map(p => `${p.name} x ${cart[p.id]} = ${money(p.price * cart[p.id])}`),
-    "",
-    "Subtotal: " + money(total),
-    "Delivery fee: To be confirmed",
-    "",
-    "Customer: " + form.get("customer"),
-    "Phone: " + form.get("phone"),
-    "Address: " + form.get("address"),
-    "Payment preference: " + form.get("payment"),
-    "Notes: " + (form.get("notes") || "None"),
-    "",
-    "Please confirm availability, delivery charge and final total."
-  ];
-
-  const url = "https://wa.me/" + STORE.whatsapp + "?text=" + encodeURIComponent(lines.join("\n"));
-  window.open(url, "_blank");
-});
-
-setupStore();
-renderFilters();
-renderProducts();
-updateCartCount();
-</script>
-</body>
-</html>
+let products=[],cart={};try{cart=JSON.parse(localStorage.getItem('shakilStoreCart')||'{}')||{};}catch{cart={};}
+const sb=window.supabase.createClient(CONFIG.supabaseUrl,CONFIG.supabaseAnonKey);
+let currentUser=null;
+const money=n=>'৳'+Number(n).toLocaleString('en-BD');
+const el=id=>document.getElementById(id);
+function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function initConfig(){el('year').textContent=new Date().getFullYear();el('payNumber').textContent=CONFIG.mfsPaymentNumber||'Contact store owner';el('contactPhone').textContent=CONFIG.phone||'Contact store';el('contactPhone').href=CONFIG.phone?'tel:'+CONFIG.phone.replace(/\s/g,''):'#';el('contactWA').textContent=CONFIG.whatsapp?'Chat on WhatsApp':'WhatsApp not configured';el('contactWA').href=CONFIG.whatsapp?'https://wa.me/'+CONFIG.whatsapp.replace(/\D/g,''):'#';}
+async function loadProducts(){try{const r=await fetch(CONFIG.supabaseUrl+'/rest/v1/products?select=id,name,category,description,price,image_url,active&active=eq.true&order=id.desc',{headers:{apikey:CONFIG.supabaseAnonKey,Authorization:'Bearer '+CONFIG.supabaseAnonKey}});if(!r.ok)throw Error();products=await r.json();}catch(e){el('productsGrid').innerHTML='<p class="muted">Could not load products. Check the Supabase URL/key and database setup.</p>';return}
+const cats=[...new Set(products.map(p=>p.category).filter(Boolean))];el('category').innerHTML='<option value="">All categories</option>'+cats.map(c=>`<option value="${safe(c)}">${safe(c)}</option>`).join('');renderProducts();}
+function renderProducts(){const q=el('search').value.toLowerCase(),cat=el('category').value;const list=products.filter(p=>(!cat||p.category===cat)&&(`${p.name} ${p.description} ${p.category}`).toLowerCase().includes(q));el('productsGrid').innerHTML=list.length?list.map(p=>`<article class="card"><img loading="lazy" onclick="viewProduct(${p.id})" src="${safe(p.image_url||'https://placehold.co/600x600?text=Product')}" alt="${safe(p.name)} — view details"><div class="info"><small class="muted">${safe(p.category)}</small><h3><a href="product.html?id=${encodeURIComponent(p.id)}">${safe(p.name)}</a></h3><p class="muted">${safe(p.description)}</p><div class="price">${money(p.price)}</div><div class="actions"><button class="soft" onclick="viewProduct(${p.id})">Details & reviews</button><button class="primary" onclick="add(${p.id})">Add to cart</button></div></div></article>`).join(''):'<p>No products found.</p>';}
+function viewProduct(id){location.href='product.html?id='+encodeURIComponent(id);}
+function add(id){cart[id]=(cart[id]||0)+1;renderCart();}
+function qty(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];renderCart();}
+function renderCart(){try{localStorage.setItem('shakilStoreCart',JSON.stringify(cart));}catch{}const items=Object.entries(cart).map(([id,q])=>({p:products.find(p=>p.id===Number(id)),q})).filter(x=>x.p);const total=items.reduce((s,x)=>s+Number(x.p.price)*x.q,0);el('count').textContent=items.reduce((s,x)=>s+x.q,0);el('total').textContent=money(total);el('cartLines').innerHTML=items.length?items.map(({p,q})=>`<div class="itemline"><span>${safe(p.name)} × ${q}<br><small>${money(p.price)} each</small></span><span><button type="button" class="soft" onclick="qty(${p.id},-1)">−</button> <button type="button" class="soft" onclick="qty(${p.id},1)">+</button></span></div>`).join(''):'Your cart is empty.';}
+function toggleMfs(){const m=el('payment').value!=='cod';el('mfsInstructions').classList.toggle('hidden',!m);el('orderForm').elements.transaction_id.required=m;}
+function showAccount(){el('accountPanel').scrollIntoView({behavior:'smooth'});}
+function switchAuth(which){el('signupForm').classList.toggle('hidden',which!=='signup');el('loginForm').classList.toggle('hidden',which!=='login');el('authTitle').textContent=which==='signup'?'Create your account':'Sign in to your account';el('authMessage').textContent='';}
+async function syncAuth(){const {data:{session}}=await sb.auth.getSession();currentUser=session?.user||null;el('authSummary').textContent=currentUser?currentUser.email:'Sign in to place an order';el('accountButton').textContent=currentUser?'My account':'Sign in / Create account';el('authForms').classList.toggle('hidden',!!currentUser);el('signedInPanel').classList.toggle('hidden',!currentUser);if(currentUser){el('accountEmail').textContent=currentUser.email;await loadMyOrders();}else{el('myOrders').textContent='Sign in to see your orders.';} }
+el('signupForm').addEventListener('submit',async ev=>{ev.preventDefault();const f=new FormData(ev.target),email=String(f.get('email')).trim(),password=String(f.get('password'));el('authMessage').textContent='Creating account…';const {data,error}=await sb.auth.signUp({email,password});if(error){el('authMessage').textContent=error.message;return;}if(data.session){el('authMessage').textContent='Account created and signed in.';}else{el('authMessage').textContent='Account created. Check your email for the confirmation link, then sign in.';switchAuth('login');}await syncAuth();});
+el('loginForm').addEventListener('submit',async ev=>{ev.preventDefault();const f=new FormData(ev.target);el('authMessage').textContent='Signing in…';const {error}=await sb.auth.signInWithPassword({email:String(f.get('email')).trim(),password:String(f.get('password'))});if(error){el('authMessage').textContent=error.message;return;}el('authMessage').textContent='Signed in successfully.';await syncAuth();});
+async function signOut(){await sb.auth.signOut();el('authMessage').textContent='You have signed out. Sign in again or create another account to order.';await syncAuth();}
+async function resetPassword(){const email=el('loginForm').elements.email.value.trim();if(!email){el('authMessage').textContent='Enter your email address first.';return;}const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.href});el('authMessage').textContent=error?error.message:'If an account exists for that email, a password reset link has been sent.';}
+function statusText(s){return ({pending:'Order pending',awaiting_payment_verification:'MFS payment awaiting verification',paid:'Payment verified',payment_rejected:'Payment rejected',cod_confirmed:'COD order confirmed',dispatched:'Dispatched',delivered:'Delivered',cancelled:'Cancelled'})[s]||s;}
+async function loadMyOrders(){if(!currentUser)return;el('myOrders').textContent='Loading orders…';const {data,error}=await sb.from('orders').select('order_ref,items,total,payment_method,status,payment_status,created_at,transaction_id').eq('customer_id',currentUser.id).order('created_at',{ascending:false});if(error){el('myOrders').textContent='Could not load orders: '+error.message;return;}if(!data.length){el('myOrders').textContent='No orders yet. Your future orders will appear here.';return;}el('myOrders').innerHTML=data.map(o=>`<div class="panel"><div class="row"><strong>${safe(o.order_ref)}</strong><span class="statuspill">${safe(statusText(o.status))}</span></div><p class="muted">Placed ${new Date(o.created_at).toLocaleString()}</p><p>${(o.items||[]).map(i=>`${safe(i.name)} × ${Number(i.quantity)}`).join('<br>')}</p><p><strong>Total: ${money(o.total)}</strong></p><p class="muted">Payment: ${safe(o.payment_method.toUpperCase())} · Payment status: ${safe(o.payment_status)}</p></div>`).join('');}
+sb.auth.onAuthStateChange(()=>{setTimeout(()=>syncAuth(),0)});
+el('orderForm').addEventListener('submit',async ev=>{ev.preventDefault();const {data:{session}}=await sb.auth.getSession();if(!session){el('formMessage').textContent='Please sign in or create an account before ordering.';showAccount();switchAuth('login');return;}const items=Object.entries(cart).map(([id,quantity])=>({product_id:Number(id),quantity}));if(!items.length){el('formMessage').textContent='Please add at least one product.';return;}const f=new FormData(ev.target);const payload={customer_name:f.get('customer_name'),phone:f.get('phone'),address:f.get('address'),payment_method:f.get('payment_method'),transaction_id:f.get('transaction_id')||null,items};el('formMessage').textContent='Submitting order…';try{const r=await fetch(CONFIG.supabaseUrl+'/functions/v1/create-order',{method:'POST',headers:{'Content-Type':'application/json','apikey':CONFIG.supabaseAnonKey,'Authorization':'Bearer '+session.access_token},body:JSON.stringify(payload)});const data=await r.json();if(!r.ok)throw Error(data.error||'Order failed');el('formMessage').textContent='Order received. Reference: '+data.order_ref+'. Track its status in My account → My orders.';cart={};try{localStorage.removeItem('shakilStoreCart');}catch{}renderCart();ev.target.reset();toggleMfs();await loadMyOrders();}catch(e){el('formMessage').textContent='Could not submit: '+e.message+'. Please contact the store.';}});
+initConfig();loadProducts();toggleMfs();syncAuth();
+</script></body></html>
