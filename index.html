@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shakil Store | Online Shopping</title>
+<style>
+:root {
+  --brand: #176b50;
+  --dark: #18231e;
+  --muted: #6b756f;
+  --bg: #f6f8f5;
+  --white: #fff;
+  --line: #e5eae5;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--dark);
+  background: var(--bg);
+}
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+.topbar {
+  background: var(--brand); color: white;
+  text-align: center; padding: 9px;
+  font-size: 13px;
+}
+header {
+  background: white; border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; z-index: 5;
+}
+.nav {
+  max-width: 1200px; margin: auto; padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 15px;
+}
+.logo { font-size: 23px; font-weight: 800; color: var(--brand); }
+.navlinks { display: flex; align-items: center; gap: 22px; }
+.cart-button, .primary, .secondary {
+  border: 0; border-radius: 9px; padding: 12px 16px;
+  font-weight: 700;
+}
+.cart-button, .primary { background: var(--brand); color: white; }
+.secondary { background: #edf3ef; color: var(--brand); }
+main { max-width: 1200px; margin: auto; padding: 24px 20px 55px; }
+.hero {
+  background: #e3eee6; border-radius: 22px; overflow: hidden;
+  display: grid; grid-template-columns: 1.1fr .9fr;
+  min-height: 310px; align-items: center;
+}
+.hero-copy { padding: 38px; }
+.eyebrow {
+  color: var(--brand); text-transform: uppercase;
+  letter-spacing: 2px; font-size: 12px; font-weight: 800;
+}
+h1 { font-size: clamp(32px, 5vw, 54px); line-height: 1.08; margin: 15px 0; }
+.hero p { color: #58665d; line-height: 1.7; }
+.hero img { width: 100%; height: 310px; object-fit: cover; }
+.section-heading {
+  display: flex; justify-content: space-between;
+  align-items: center; gap: 15px; margin: 34px 0 18px;
+}
+.section-heading h2 { margin: 0; font-size: 25px; }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 17px; }
+.filter {
+  border: 1px solid var(--line); border-radius: 30px;
+  background: white; padding: 9px 14px; color: var(--dark);
+}
+.filter.active { background: var(--brand); color: white; border-color: var(--brand); }
+.search { display: flex; gap: 8px; width: min(100%, 360px); }
+.search input {
+  width: 100%; min-width: 0; border: 1px solid var(--line);
+  border-radius: 9px; padding: 11px 13px; background: white;
+}
+.products {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+.product {
+  background: white; border: 1px solid var(--line);
+  border-radius: 15px; overflow: hidden; min-width: 0;
+  transition: transform .18s;
+}
+.product:hover { transform: translateY(-3px); }
+.product img { display: block; width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #edf0ed; }
+.product-info { padding: 14px; }
+.tag { color: var(--brand); font-size: 11px; font-weight: 800; text-transform: uppercase; }
+.product h3 { font-size: 16px; margin: 7px 0; }
+.description { font-size: 13px; color: var(--muted); line-height: 1.5; min-height: 38px; }
+.price { font-size: 19px; font-weight: 800; margin: 12px 0; }
+.product-actions { display: flex; gap: 7px; }
+.product-actions button { flex: 1; padding: 10px 5px; font-size: 12px; }
+.empty { text-align: center; color: var(--muted); padding: 40px 10px; }
+.benefits {
+  margin-top: 36px; display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 14px;
+}
+.benefit { background: white; border: 1px solid var(--line); padding: 20px; border-radius: 13px; }
+.benefit strong { display: block; margin: 8px 0; }
+.benefit p { color: var(--muted); font-size: 13px; line-height: 1.5; margin-bottom: 0; }
+footer { background: #182b23; color: white; padding: 34px 20px; }
+.footer-inner {
+  max-width: 1160px; margin: auto; display: flex;
+  justify-content: space-between; gap: 25px; flex-wrap: wrap;
+}
+footer p { color: #c6d4cb; line-height: 1.7; font-size: 14px; }
+footer a { color: white; text-decoration: underline; }
+.overlay {
+  display: none; position: fixed; inset: 0; z-index: 10;
+  background: #0008; justify-content: flex-end;
+}
+.overlay.open { display: flex; }
+.drawer {
+  background: white; width: min(100%, 440px); height: 100%;
+  overflow-y: auto; padding: 22px;
+}
+.drawer-head { display: flex; justify-content: space-between; align-items: center; }
+.drawer-head h2 { margin: 0; }
+.close { border: 0; background: #edf1ed; border-radius: 50%; padding: 10px 13px; }
+.cart-row {
+  display: grid; grid-template-columns: 64px 1fr auto;
+  align-items: center; gap: 12px; padding: 15px 0;
+  border-bottom: 1px solid var(--line);
+}
+.cart-row img { width: 64px; height: 64px; object-fit: cover; border-radius: 9px; }
+.cart-row h4 { margin: 0 0 5px; }
+.cart-row p { margin: 0; color: var(--muted); font-size: 13px; }
+.qty { display: flex; align-items: center; gap: 9px; margin-top: 7px; }
+.qty button { border: 1px solid var(--line); background: white; border-radius: 5px; padding: 3px 9px; }
+.cart-total { display: flex; justify-content: space-between; font-size: 20px; font-weight: 800; padding: 20px 0; }
+.checkout-form { display: grid; gap: 11px; }
+.checkout-form label { font-size: 13px; font-weight: 700; }
+.checkout-form input, .checkout-form select, .checkout-form textarea {
+  width: 100%; padding: 12px; border: 1px solid #dce3dc;
+  border-radius: 8px; margin-top: 6px; background: white;
+}
+.checkout-form textarea { min-height: 75px; resize: vertical; }
+.checkout-form button { width: 100%; margin-top: 5px; }
+.small-note { color: var(--muted); font-size: 12px; line-height: 1.5; }
+@media (max-width: 850px) {
+  .products { grid-template-columns: repeat(3, minmax(0,1fr)); }
+  .hero-copy { padding: 25px; }
+}
+@media (max-width: 600px) {
+  .nav { padding: 13px 15px; }
+  .logo { font-size: 19px; }
+  .navlinks { gap: 10px; }
+  .navlinks a { display: none; }
+  main { padding: 17px 13px 40px; }
+  .hero { grid-template-columns: 1fr; }
+  .hero-copy { padding: 26px 22px; }
+  .hero img { height: 190px; }
+  .section-heading { align-items: flex-start; flex-direction: column; }
+  .search { width: 100%; }
+  .products { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+  .product-info { padding: 10px; }
+  .product h3 { font-size: 14px; }
+  .description { font-size: 12px; }
+  .product-actions { flex-direction: column; }
+  .product-actions button { width: 100%; }
+  .benefits { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="topbar">Welcome to our store · Easy ordering · Friendly service</div>
+
+<header>
+  <nav class="nav">
+    <a href="#" class="logo" id="brandName">Shakil Store</a>
+    <div class="navlinks">
+      <a href="#products">Shop</a>
+      <a href="#contact">Contact</a>
+      <button class="cart-button" onclick="openCart()">
+        🛒 Cart (<span id="cartCount">0</span>)
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow">Welcome to our shop</div>
+      <h1>Find something<br>you'll love.</h1>
+      <p>Discover our collection of everyday essentials at prices you'll appreciate.</p>
+      <a href="#products"><button class="primary">Explore products →</button></a>
+    </div>
+    <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=900&q=80" alt="Modern retail store">
+  </section>
+
+  <section id="products">
+    <div class="section-heading">
+      <div>
+        <div class="eyebrow">Our collection</div>
+        <h2>Popular products</h2>
+      </div>
+      <div class="search">
+        <input id="searchInput" placeholder="Search products..." oninput="renderProducts()">
+      </div>
+    </div>
+    <div class="filters" id="filters"></div>
+    <div class="products" id="productGrid"></div>
+  </section>
+
+  <section class="benefits">
+    <div class="benefit">📦<strong>Simple ordering</strong><p>Choose your products and send your order directly to us.</p></div>
+    <div class="benefit">💬<strong>Friendly support</strong><p>Contact us if you have questions about a product.</p></div>
+    <div class="benefit">🔒<strong>Clear pricing</strong><p>Review your items and total before placing an order.</p></div>
+  </section>
+</main>
+
+<footer id="contact">
+  <div class="footer-inner">
+    <div>
+      <h2 id="footerName">Shakil Store</h2>
+      <p>Your friendly online shopping destination.</p>
+    </div>
+    <div>
+      <strong>Contact us</strong>
+      <p>Phone: <a id="phoneLink" href="tel:+8801XXXXXXXXX">+880 1XXXXXXXXX</a><br>
+      WhatsApp: <a id="whatsappLink" href="#" target="_blank">Chat with us</a><br>
+      Email: <a id="emailLink" href="mailto:your@email.com">your@email.com</a></p>
+    </div>
+  </div>
+  <div class="footer-inner"><p>© <span id="year"></span> <span id="copyrightName">Shakil Store</span>. All rights reserved.</p></div>
+</footer>
+
+<div class="overlay" id="cartOverlay" onclick="overlayClick(event)">
+  <aside class="drawer">
+    <div class="drawer-head">
+      <h2>Your cart</h2>
+      <button class="close" onclick="closeCart()" aria-label="Close cart">✕</button>
+    </div>
+    <div id="cartItems"></div>
+    <div class="cart-total"><span>Total</span><span id="cartTotal">৳0</span></div>
+    <h3>Checkout details</h3>
+    <form class="checkout-form" id="checkoutForm">
+      <label>Full name
+        <input name="customer" required placeholder="Your name">
+      </label>
+      <label>Phone number
+        <input name="phone" required inputmode="tel" placeholder="01XXXXXXXXX">
+      </label>
+      <label>Delivery address
+        <textarea name="address" required placeholder="House, road, area, district"></textarea>
+      </label>
+      <label>Payment method
+        <select name="payment">
+          <option>Cash on delivery (confirm with seller)</option>
+          <option>Mobile payment (arrange with seller)</option>
+          <option>Bank transfer (arrange with seller)</option>
+        </select>
+      </label>
+      <label>Extra instructions (optional)
+        <textarea name="notes" placeholder="Size, color, delivery instructions..."></textarea>
+      </label>
+      <button class="primary" type="submit">Place order on WhatsApp</button>
+      <p class="small-note">Your order will be sent to the shop's WhatsApp for confirmation. No payment is processed by this demo website.</p>
+    </form>
+  </aside>
+</div>
+
+<script>
+// ========== CHANGE YOUR STORE DETAILS HERE ==========
+const STORE = {
+  name: "Shakil Store",
+  whatsapp: "8801XXXXXXXXX", // Replace with your WhatsApp number, digits only
+  phone: "+880 1XXXXXXXXX",
+  email: "your@email.com"
+};
+
+// Replace these sample products with your own products.
+const products = [
+  {
+    id: 1, name: "Classic Everyday Bag", category: "Fashion",
+    price: 1250, description: "A stylish bag for everyday use.",
+    image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    id: 2, name: "Minimal Wrist Watch", category: "Accessories",
+    price: 1850, description: "A clean, timeless everyday look.",
+    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    id: 3, name: "Casual Sneakers", category: "Fashion",
+    price: 2200, description: "Comfortable style for daily wear.",
+    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    id: 4, name: "Wireless Headphones", category: "Electronics",
+    price: 1650, description: "Enjoy music and audio on the go.",
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    id: 5, name: "Everyday Backpack", category: "Accessories",
+    price: 1450, description: "A practical bag for work or travel.",
+    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    id: 6, name: "Classic Sunglasses", category: "Accessories",
+    price: 750, description: "An easy finishing touch to your outfit.",
+    image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    id: 7, name: "Cotton T-Shirt", category: "Fashion",
+    price: 550, description: "A simple staple for everyday comfort.",
+    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    id: 8, name: "Portable Speaker", category: "Electronics",
+    price: 1350, description: "Bring your favorite music along.",
+    image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=600&q=80"
+  }
+];
+
+// Cart is saved in this browser on this device.
+let cart = {};
+let activeCategory = "All";
+
+try {
+  cart = JSON.parse(localStorage.getItem("shakilStoreCart") || "{}") || {};
+} catch (error) {
+  cart = {};
+}
+
+const money = amount => "৳" + amount.toLocaleString("en-BD");
+
+function saveCart() {
+  try {
+    localStorage.setItem("shakilStoreCart", JSON.stringify(cart));
+  } catch (error) {
+    // The cart still works for the current page session.
+  }
+  updateCartCount();
+}
+
+function setupStore() {
+  document.title = STORE.name + " | Online Shopping";
+  ["brandName", "footerName", "copyrightName"].forEach(id => {
+    document.getElementById(id).textContent = STORE.name;
+  });
+  document.getElementById("phoneLink").textContent = STORE.phone;
+  document.getElementById("phoneLink").href = "tel:" + STORE.phone.replace(/\s/g, "");
+  document.getElementById("emailLink").textContent = STORE.email;
+  document.getElementById("emailLink").href = "mailto:" + STORE.email;
+  const validWhatsApp = /^\d{10,15}$/.test(STORE.whatsapp);
+  const waLink = document.getElementById("whatsappLink");
+  waLink.href = validWhatsApp ? "https://wa.me/" + STORE.whatsapp : "#contact";
+  if (!validWhatsApp) waLink.removeAttribute("target");
+  document.getElementById("year").textContent = new Date().getFullYear();
+}
+
+function renderFilters() {
+  const categories = ["All", ...new Set(products.map(p => p.category))];
+  document.getElementById("filters").innerHTML = categories.map(category =>
+    `<button class="filter ${activeCategory === category ? "active" : ""}"
+      onclick="setCategory(${JSON.stringify(category)})">${category}</button>`
+  ).join("");
+}
+
+function setCategory(category) {
+  activeCategory = category;
+  renderFilters();
+  renderProducts();
+}
+
+function renderProducts() {
+  const search = document.getElementById("searchInput").value.trim().toLowerCase();
+  const filtered = products.filter(p =>
+    (activeCategory === "All" || p.category === activeCategory) &&
+    (p.name + " " + p.description + " " + p.category).toLowerCase().includes(search)
+  );
+  const grid = document.getElementById("productGrid");
+
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1">No products found. Try another search.</div>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map(p => `
+    <article class="product">
+      <img src="${p.image}" alt="${p.name}" loading="lazy"
+        onerror="this.onerror=null;this.src='https://placehold.co/600x600?text=Product'">
+      <div class="product-info">
+        <div class="tag">${p.category}</div>
+        <h3>${p.name}</h3>
+        <div class="description">${p.description}</div>
+        <div class="price">${money(p.price)}</div>
+        <div class="product-actions">
+          <button class="secondary" onclick="buyNow(${p.id})">Buy now</button>
+          <button class="primary" onclick="addToCart(${p.id})">Add to cart</button>
+        </div>
+      </div>
+    </article>
+  `).join("");
+}
+
+function addToCart(id) {
+  cart[id] = (cart[id] || 0) + 1;
+  saveCart();
+  renderCart();
+}
+
+function buyNow(id) {
+  addToCart(id);
+  openCart();
+}
+
+function changeQty(id, amount) {
+  cart[id] = (cart[id] || 0) + amount;
+  if (cart[id] <= 0) delete cart[id];
+  saveCart();
+  renderCart();
+}
+
+function removeItem(id) {
+  delete cart[id];
+  saveCart();
+  renderCart();
+}
+
+function updateCartCount() {
+  const count = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
+  document.getElementById("cartCount").textContent = count;
+}
+
+function renderCart() {
+  const items = products.filter(p => cart[p.id] > 0);
+  const container = document.getElementById("cartItems");
+
+  if (!items.length) {
+    container.innerHTML = '<div class="empty">Your cart is empty.<br>Choose a product to get started.</div>';
+  } else {
+    container.innerHTML = items.map(p => `
+      <div class="cart-row">
+        <img src="${p.image}" alt="${p.name}">
+        <div>
+          <h4>${p.name}</h4>
+          <p>${money(p.price)} each</p>
+          <div class="qty">
+            <button type="button" onclick="changeQty(${p.id},-1)">−</button>
+            <span>${cart[p.id]}</span>
+            <button type="button" onclick="changeQty(${p.id},1)">+</button>
+          </div>
+        </div>
+        <button type="button" class="close" aria-label="Remove ${p.name}"
+          onclick="removeItem(${p.id})">🗑</button>
+      </div>
+    `).join("");
+  }
+
+  const total = items.reduce((sum, p) => sum + p.price * cart[p.id], 0);
+  document.getElementById("cartTotal").textContent = money(total);
+  document.getElementById("checkoutForm").style.display = items.length ? "grid" : "none";
+}
+
+function openCart() {
+  renderCart();
+  document.getElementById("cartOverlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeCart() {
+  document.getElementById("cartOverlay").classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+function overlayClick(event) {
+  if (event.target.id === "cartOverlay") closeCart();
+}
+
+document.getElementById("checkoutForm").addEventListener("submit", function(event) {
+  event.preventDefault();
+
+  if (!Object.values(cart).some(qty => qty > 0)) {
+    alert("Your cart is empty.");
+    return;
+  }
+
+  if (!/^\d{10,15}$/.test(STORE.whatsapp)) {
+    alert("The store owner must add a valid WhatsApp number in the STORE settings before orders can be sent.");
+    return;
+  }
+
+  const form = new FormData(this);
+  const items = products.filter(p => cart[p.id] > 0);
+  const total = items.reduce((sum, p) => sum + p.price * cart[p.id], 0);
+
+  const lines = [
+    "NEW ORDER - " + STORE.name,
+    "",
+    ...items.map(p => `${p.name} x ${cart[p.id]} = ${money(p.price * cart[p.id])}`),
+    "",
+    "Subtotal: " + money(total),
+    "Delivery fee: To be confirmed",
+    "",
+    "Customer: " + form.get("customer"),
+    "Phone: " + form.get("phone"),
+    "Address: " + form.get("address"),
+    "Payment preference: " + form.get("payment"),
+    "Notes: " + (form.get("notes") || "None"),
+    "",
+    "Please confirm availability, delivery charge and final total."
+  ];
+
+  const url = "https://wa.me/" + STORE.whatsapp + "?text=" + encodeURIComponent(lines.join("\n"));
+  window.open(url, "_blank");
+});
+
+setupStore();
+renderFilters();
+renderProducts();
+updateCartCount();
+</script>
+</body>
+</html>
