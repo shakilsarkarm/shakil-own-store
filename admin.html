@@ -1,412 +1,108 @@
-
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Shakil Store Admin</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shakil's Choice Admin</title>
 <style>
-:root{--green:#126b50;--ink:#17231d;--line:#e0e9e1}
-*{box-sizing:border-box}
+:root{--green:#126b50;--ink:#17231d;--line:#e0e9e1}*{box-sizing:border-box}
 body{font-family:Arial,sans-serif;background:#f5f8f5;color:var(--ink);max-width:1100px;margin:auto;padding:18px}
 input,button,textarea,select{font:inherit;padding:11px;border:1px solid #dce4dc;border-radius:9px;max-width:100%}
-input,textarea,select{width:100%;background:#fff}
-button{cursor:pointer;background:var(--green);color:white;border:0;font-weight:bold;width:auto}
-button:disabled{opacity:.5;cursor:wait}
-.soft{background:#e8f2eb;color:var(--green)}
-.danger{background:#9c3030}
+input,textarea,select{width:100%;background:#fff}button{cursor:pointer;background:var(--green);color:white;border:0;font-weight:bold;width:auto}
+.soft{background:#e8f2eb;color:var(--green)}.danger{background:#9c3030}
 .panel{background:white;border:1px solid var(--line);border-radius:15px;padding:18px;margin:15px 0}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.row>*{flex:1;min-width:150px}
-.muted{color:#68746c;font-size:13px;line-height:1.6}
-.order,.product{border-top:1px solid #e5e9e5;padding:14px 0;overflow-wrap:anywhere}
-.product{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start}
-.product-actions{display:flex;gap:6px;flex-wrap:wrap}
-.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.wide{grid-column:1/-1}
-label{display:block;font-size:14px}
-.fieldlabel{margin-bottom:5px}
-input[type=checkbox]{width:auto}
-@media(max-width:600px){
-body{padding:10px}
-.formgrid{grid-template-columns:1fr}
-.wide{grid-column:auto}
-.product{grid-template-columns:1fr}
-.product-actions button{flex:1}
-}
-</style>
-</head>
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{flex:1;min-width:150px}
+.muted{color:#68746c;font-size:13px;line-height:1.6}.order,.product{border-top:1px solid #e5e9e5;padding:14px 0;overflow-wrap:anywhere}
+.product{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start}.product-actions{display:flex;gap:6px;flex-wrap:wrap}
+.status{font-weight:bold}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.wide{grid-column:1/-1}
+label{display:block;font-size:14px}.fieldlabel{margin-bottom:5px}
+@media(max-width:600px){body{padding:10px}.formgrid{grid-template-columns:1fr}.wide{grid-column:auto}.product{grid-template-columns:1fr}.product-actions button{flex:1}}
+</style></head>
 <body>
-<h1>Shakil Store — Admin</h1>
-<p class="muted">
-Sign in with your admin account. Your account UUID must be registered
-in the Supabase public.admin_users table. Product management requires
-the admin-products Edge Function to be deployed in Supabase.
-</p>
-
-<section class="panel">
-<h2>Admin sign in</h2>
-<div class="row">
-<input id="email" type="email" autocomplete="username" placeholder="Admin email">
-<input id="password" type="password" autocomplete="current-password" placeholder="Password">
-</div>
-<p>
-<button id="signInBtn" onclick="signIn()">Sign in</button>
-<button class="soft" onclick="signOut()">Sign out</button>
-</p>
-<p id="loginMsg" class="muted" role="status"></p>
+<h1>Shakil's Choice — Admin</h1>
+<p class="muted">Sign in with the Supabase Auth account whose UUID is registered in <code>admin_users</code>. Product changes are sent to a server-side Edge Function. Never place the service-role key in this page or config.js.</p>
+<section class="panel" id="login">
+<h2>Admin sign in</h2><div class="row"><input id="email" type="email" autocomplete="username" placeholder="Admin email"><input id="password" type="password" autocomplete="current-password" placeholder="Password"></div>
+<p><button onclick="signIn()">Sign in</button> <button class="soft" onclick="signOut()">Sign out</button></p><p id="loginMsg" class="muted" role="status"></p>
 </section>
-
 <section class="panel">
 <h2 id="productFormTitle">Add a product</h2>
-<p class="muted">
-Add products, edit prices and stock, or hide products from your store.
-Hiding a product does not delete it or your existing orders.
-</p>
-
+<p class="muted">Products can be added or edited here. Use “Hide” instead of deleting a product so existing orders keep their item history.</p>
 <form id="productForm">
 <input type="hidden" id="productId">
 <div class="formgrid">
-<label class="fieldlabel">Product name
-<input id="pName" maxlength="160" required placeholder="Everyday Backpack">
-</label>
-
-<label class="fieldlabel">Category
-<input id="pCategory" maxlength="80" required value="General" placeholder="General">
-</label>
-
-<label class="fieldlabel">Price (BDT)
-<input id="pPrice" type="number" min="0" step="0.01" required placeholder="1450">
-</label>
-
-<label class="fieldlabel">Stock quantity
-<input id="pStock" type="number" min="0" max="1000000" step="1" required value="10">
-</label>
-
-<label class="fieldlabel wide">Image URL (optional)
-<input id="pImage" type="url" maxlength="2000" placeholder="https://example.com/product.jpg">
-</label>
-
-<label class="fieldlabel wide">Description
-<textarea id="pDescription" maxlength="3000" rows="3" placeholder="Product details"></textarea>
-</label>
-
-<label class="fieldlabel wide">
-<input id="pActive" type="checkbox" checked>
-Show this product in the store
-</label>
+<label class="fieldlabel">Product name<input id="pName" maxlength="160" required placeholder="e.g. Everyday Backpack"></label>
+<label class="fieldlabel">Category<input id="pCategory" maxlength="80" required value="General" placeholder="General"></label>
+<label class="fieldlabel">Price (BDT)<input id="pPrice" type="number" min="0" max="9999999999" step="0.01" required placeholder="1450"></label>
+<label class="fieldlabel">Stock quantity<input id="pStock" type="number" min="0" max="1000000" step="1" required value="10"></label>
+<label class="fieldlabel wide">Image URL (optional)<input id="pImage" type="url" maxlength="2000" placeholder="https://..."></label>
+<label class="fieldlabel wide">Description<textarea id="pDescription" maxlength="3000" rows="3" placeholder="Product details"></textarea></label>
+<label class="fieldlabel wide"><span><input id="pActive" type="checkbox" checked style="width:auto"> Show this product in the store</span></label>
 </div>
-
-<p>
-<button id="saveProductBtn" type="submit">Save product</button>
-<button class="soft" type="button" onclick="resetProductForm()">Clear form</button>
-</p>
-</form>
-
-<p id="productMsg" class="muted" role="status"></p>
-<h3>Products</h3>
-<button class="soft" onclick="loadProducts()">Refresh products</button>
-<div id="products"></div>
+<p><button id="saveProductBtn" type="submit">Save product</button> <button class="soft" type="button" onclick="resetProductForm()">Clear form</button></p>
+</form><p id="productMsg" class="muted" role="status"></p><h3>Products</h3><button class="soft" onclick="loadProducts()">Refresh products</button><div id="products"></div>
 </section>
-
-<section class="panel">
-<h2>Orders</h2>
-<button class="soft" onclick="loadOrders()">Refresh orders</button>
-<p id="msg" class="muted" role="status"></p>
-<div id="orders"></div>
-</section>
-
-<script src="config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<section class="panel"><h2>Orders</h2><button class="soft" onclick="loadOrders()">Refresh orders</button><p id="msg" class="muted" role="status"></p><div id="orders"></div></section>
+<script src="config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const sb = window.supabase.createClient(
-  CONFIG.supabaseUrl,
-  CONFIG.supabaseAnonKey
-);
-
-let productCache = [];
-
-const el = id => document.getElementById(id);
-
-const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({
-  '&':'&amp;',
-  '<':'&lt;',
-  '>':'&gt;',
-  '"':'&quot;',
-  "'":'&#39;'
-}[char]));
-
-const money = value =>
-  '৳' + Number(value || 0).toLocaleString('en-BD');
-
-async function signIn() {
-  el('loginMsg').textContent = 'Signing in...';
-  el('signInBtn').disabled = true;
-
-  try {
-    const { data, error } = await sb.auth.signInWithPassword({
-      email: el('email').value.trim(),
-      password: el('password').value
-    });
-
-    if (error) throw error;
-
-    el('loginMsg').textContent = 'Signed in. Loading admin data...';
-
-    await Promise.all([loadProducts(), loadOrders()]);
-  } catch (error) {
-    el('loginMsg').textContent = 'Sign-in error: ' + error.message;
-  } finally {
-    el('signInBtn').disabled = false;
-  }
+const sb=window.supabase.createClient(CONFIG.supabaseUrl,CONFIG.supabaseAnonKey);
+let session=null, productCache=[];
+const el=id=>document.getElementById(id);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>'৳'+Number(n||0).toLocaleString('en-BD');
+async function signIn(){
+ const {data,error}=await sb.auth.signInWithPassword({email:el('email').value.trim(),password:el('password').value});
+ el('loginMsg').textContent=error?error.message:'Signed in. Checking admin access…';
+ session=data?.session||null;
+ if(session){await loadProducts();await loadOrders();}
 }
-
-async function signOut() {
-  const { error } = await sb.auth.signOut();
-
-  if (error) {
-    el('loginMsg').textContent = error.message;
-    return;
-  }
-
-  productCache = [];
-  el('products').replaceChildren();
-  el('orders').replaceChildren();
-  el('productMsg').textContent = '';
-  el('msg').textContent = '';
-  el('loginMsg').textContent = 'Signed out.';
-  resetProductForm();
+async function signOut(){await sb.auth.signOut();session=null;el('orders').innerHTML='';el('products').innerHTML='';el('loginMsg').textContent='Signed out.';}
+async function invokeAdmin(action,payload={}){
+ const {data:{session:s}}=await sb.auth.getSession();
+ if(!s) throw new Error('Please sign in first.');
+ const {data,error}=await sb.functions.invoke('admin-products',{body:{action,...payload}});
+ if(error) throw new Error(data?.error||error.message||'Product request failed.');
+ if(data?.error) throw new Error(data.error);
+ return data;
 }
-
-async function invokeAdmin(action, payload = {}) {
-  const { data: { session } } = await sb.auth.getSession();
-
-  if (!session) throw new Error('Please sign in first.');
-
-  const { data, error } = await sb.functions.invoke('admin-products', {
-    body: { action, ...payload }
-  });
-
-  if (error) throw new Error(data?.error || error.message);
-  if (data?.error) throw new Error(data.error);
-
-  return data;
+async function loadProducts(){
+ el('productMsg').textContent='Loading products…';
+ try{
+  const data=await invokeAdmin('list');productCache=data.products||[];
+  el('productMsg').textContent=productCache.length+' products found.';
+  el('products').innerHTML=productCache.map(p=>`<div class="product"><div><strong>${esc(p.name)}</strong><br><span class="muted">ID ${p.id} · ${money(p.price)} · Stock ${Number(p.stock_quantity)} · ${p.active?'Visible':'Hidden'}</span><br><span class="muted">${esc(p.category)}</span></div><div class="product-actions"><button class="soft" onclick="editProduct(${p.id})">Edit</button>${p.active?`<button class="danger" onclick="toggleProduct(${p.id},false)">Hide</button>`:`<button onclick="toggleProduct(${p.id},true)">Show</button>`}</div></div>`).join('')||'No products yet. Use the form above to add one.';
+ }catch(e){el('productMsg').textContent='Could not load products: '+e.message;}
 }
-
-async function loadProducts() {
-  el('productMsg').textContent = 'Loading products...';
-
-  try {
-    const data = await invokeAdmin('list');
-    productCache = data.products || [];
-
-    el('productMsg').textContent =
-      productCache.length + ' products found.';
-
-    el('products').innerHTML = productCache.map(product => `
-      <div class="product">
-        <div>
-          <strong>${esc(product.name)}</strong><br>
-          <span class="muted">
-            ID ${esc(product.id)} · ${money(product.price)}
-            · Stock ${Number(product.stock_quantity)}
-            · ${product.active ? 'Visible' : 'Hidden'}
-          </span><br>
-          <span class="muted">${esc(product.category)}</span>
-        </div>
-        <div class="product-actions">
-          <button class="soft" onclick="editProduct(${Number(product.id)})">Edit</button>
-          ${
-            product.active
-              ? `<button class="danger" onclick="toggleProduct(${Number(product.id)},false)">Hide</button>`
-              : `<button onclick="toggleProduct(${Number(product.id)},true)">Show</button>`
-          }
-        </div>
-      </div>
-    `).join('') || 'No products yet. Add your first product above.';
-  } catch (error) {
-    el('productMsg').textContent =
-      'Could not load products: ' + error.message;
-  }
+function editProduct(id){
+ const p=productCache.find(x=>Number(x.id)===Number(id));if(!p)return;
+ el('productId').value=p.id;el('pName').value=p.name||'';el('pCategory').value=p.category||'General';el('pPrice').value=p.price;el('pStock').value=p.stock_quantity??0;el('pImage').value=p.image_url||'';el('pDescription').value=p.description||'';el('pActive').checked=!!p.active;el('productFormTitle').textContent='Edit product #'+p.id;el('saveProductBtn').textContent='Save changes';window.scrollTo({top:0,behavior:'smooth'});
 }
-
-function editProduct(id) {
-  const product = productCache.find(
-    item => Number(item.id) === Number(id)
-  );
-
-  if (!product) return;
-
-  el('productId').value = product.id;
-  el('pName').value = product.name || '';
-  el('pCategory').value = product.category || 'General';
-  el('pPrice').value = product.price;
-  el('pStock').value = product.stock_quantity ?? 0;
-  el('pImage').value = product.image_url || '';
-  el('pDescription').value = product.description || '';
-  el('pActive').checked = !!product.active;
-
-  el('productFormTitle').textContent = 'Edit product #' + product.id;
-  el('saveProductBtn').textContent = 'Save changes';
-
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function resetProductForm() {
-  el('productForm').reset();
-  el('productId').value = '';
-  el('pCategory').value = 'General';
-  el('pStock').value = '10';
-  el('pActive').checked = true;
-  el('productFormTitle').textContent = 'Add a product';
-  el('saveProductBtn').textContent = 'Save product';
-}
-
-el('productForm').addEventListener('submit', async event => {
-  event.preventDefault();
-
-  const name = el('pName').value.trim();
-  const category = el('pCategory').value.trim();
-  const price = Number(el('pPrice').value);
-  const stock = Number(el('pStock').value);
-  const image = el('pImage').value.trim();
-
-  if (
-    !name || !category ||
-    !Number.isFinite(price) || price < 0 ||
-    !Number.isSafeInteger(stock) || stock < 0 || stock > 1000000
-  ) {
-    el('productMsg').textContent =
-      'Check the name, category, price and whole-number stock quantity.';
-    return;
-  }
-
-  if (image && !/^https?:\/\//i.test(image)) {
-    el('productMsg').textContent =
-      'Image URL must start with http:// or https://';
-    return;
-  }
-
-  const product = {
-    name,
-    category,
-    price,
-    stock_quantity: stock,
-    image_url: image || null,
-    description: el('pDescription').value.trim(),
-    active: el('pActive').checked
-  };
-
-  const id = el('productId').value;
-  const button = el('saveProductBtn');
-
-  button.disabled = true;
-  el('productMsg').textContent = 'Saving product...';
-
-  try {
-    if (id) {
-      await invokeAdmin('update', { id: Number(id), product });
-    } else {
-      await invokeAdmin('create', { product });
-    }
-
-    el('productMsg').textContent = 'Product saved successfully.';
-    resetProductForm();
-    await loadProducts();
-  } catch (error) {
-    el('productMsg').textContent =
-      'Could not save product: ' + error.message;
-  } finally {
-    button.disabled = false;
-  }
+function resetProductForm(){el('productForm').reset();el('productId').value='';el('pCategory').value='General';el('pStock').value='10';el('pActive').checked=true;el('productFormTitle').textContent='Add a product';el('saveProductBtn').textContent='Save product';}
+el('productForm').addEventListener('submit',async ev=>{
+ ev.preventDefault();
+ const price=Number(el('pPrice').value),stock=Number(el('pStock').value),name=el('pName').value.trim(),category=el('pCategory').value.trim(),image=el('pImage').value.trim();
+ if(!name||!category||!Number.isFinite(price)||price<0||!Number.isSafeInteger(stock)||stock<0||stock>1000000){el('productMsg').textContent='Check product name, category, price, and whole-number stock quantity.';return;}
+ if(image&&!/^https?:\/\//i.test(image)){el('productMsg').textContent='Image URL must start with http:// or https://';return;}
+ const product={name,category,price,stock_quantity:stock,image_url:image,description:el('pDescription').value.trim(),active:el('pActive').checked};
+ el('productMsg').textContent='Saving product…';el('saveProductBtn').disabled=true;
+ try{const id=el('productId').value;await invokeAdmin(id?'update':'create',id?{id:Number(id),product}:{product});el('productMsg').textContent='Product saved successfully.';resetProductForm();await loadProducts();}
+ catch(e){el('productMsg').textContent='Could not save product: '+e.message;}
+ finally{el('saveProductBtn').disabled=false;}
 });
-
-async function toggleProduct(id, active) {
-  const message = active
-    ? 'Show this product in the store?'
-    : 'Hide this product from the store? Existing orders will remain unchanged.';
-
-  if (!confirm(message)) return;
-
-  el('productMsg').textContent = 'Updating product...';
-
-  try {
-    await invokeAdmin('visibility', {
-      id: Number(id),
-      active
-    });
-
-    el('productMsg').textContent = active
-      ? 'Product is now visible.'
-      : 'Product hidden. It has not been deleted.';
-
-    await loadProducts();
-  } catch (error) {
-    el('productMsg').textContent =
-      'Could not update product: ' + error.message;
-  }
+async function toggleProduct(id,active){
+ if(!confirm(active?'Show this product in the store?':'Hide this product from the store? Existing orders will remain unchanged.'))return;
+ el('productMsg').textContent='Updating visibility…';
+ try{await invokeAdmin('visibility',{id:Number(id),active});el('productMsg').textContent=active?'Product is now visible.':'Product hidden; it was not deleted.';await loadProducts();}
+ catch(e){el('productMsg').textContent='Could not update product: '+e.message;}
 }
-
-async function loadOrders() {
-  el('msg').textContent = 'Loading orders...';
-
-  try {
-    const { data, error } = await sb.functions.invoke(
-      'admin-order-action',
-      { body: { action: 'list' } }
-    );
-
-    if (error) throw new Error(data?.error || error.message);
-    if (data?.error) throw new Error(data.error);
-
-    const orders = data.orders || [];
-    el('msg').textContent = orders.length + ' recent orders';
-
-    el('orders').innerHTML = orders.map(order => `
-      <div class="order">
-        <strong>${esc(order.order_ref)}</strong>
-        — ${esc(order.status)}<br>
-        ${esc(order.customer_name)} · ${esc(order.phone)}<br>
-        ${esc(order.address)}<br>
-        ${order.note ? 'Note: ' + esc(order.note) + '<br>' : ''}
-        Payment: ${esc(order.payment_method)}
-        · ${esc(order.payment_status)}
-        · Total ${money(order.total)}<br>
-        Delivery: ${money(order.delivery_charge)}
-        · Receipt email: ${esc(order.email_status || 'unknown')}<br>
-        Transaction ID: ${esc(order.transaction_id || 'Not provided')}<br>
-        <small>${esc(JSON.stringify(order.items))}</small>
-        <p>
-          <button onclick="act('${esc(order.id)}','verify')">Verify payment</button>
-          <button class="danger" onclick="act('${esc(order.id)}','reject')">Reject payment</button>
-          <button onclick="act('${esc(order.id)}','dispatched')">Mark dispatched</button>
-          <button onclick="act('${esc(order.id)}','delivered')">Mark delivered</button>
-        </p>
-      </div>
-    `).join('') || 'No orders yet.';
-  } catch (error) {
-    el('msg').textContent = 'Could not load orders: ' + error.message;
-  }
+async function loadOrders(){
+ el('msg').textContent='Loading orders…';
+ try{
+  const {data,error}=await sb.functions.invoke('admin-order-action',{body:{action:'list'}});
+  if(error)throw new Error(data?.error||error.message);if(data?.error)throw new Error(data.error);
+  const orders=data.orders||[];el('msg').textContent=orders.length+' recent orders';
+  el('orders').innerHTML=orders.map(o=>`<div class="order"><strong>${esc(o.order_ref)}</strong> — ${esc(o.status)}<br>${esc(o.customer_name)} · ${esc(o.phone)}<br>${esc(o.address)}<br>${o.note?'Note: '+esc(o.note)+'<br>':''}Payment: ${esc(o.payment_method)} · ${esc(o.payment_status)} · Total ${money(o.total)}<br>Delivery: ${money(o.delivery_charge)} · Receipt email: ${esc(o.email_status||'unknown')}<br>Transaction ID: ${esc(o.transaction_id||'Not provided')}<br><small>${esc(JSON.stringify(o.items))}</small><p><button onclick="act('${o.id}','verify')">Verify payment</button> <button class="danger" onclick="act('${o.id}','reject')">Reject payment</button> <button onclick="act('${o.id}','dispatched')">Mark dispatched</button> <button onclick="act('${o.id}','delivered')">Mark delivered</button></p></div>`).join('')||'No orders yet.';
+ }catch(e){el('msg').textContent='Could not load orders: '+e.message;}
 }
-
-async function act(id, action) {
-  el('msg').textContent = 'Updating order...';
-
-  try {
-    const { data, error } = await sb.functions.invoke(
-      'admin-order-action',
-      { body: { action, order_id: id } }
-    );
-
-    if (error) throw new Error(data?.error || error.message);
-    if (data?.error) throw new Error(data.error);
-
-    el('msg').textContent = data?.message || 'Order updated.';
-    await loadOrders();
-  } catch (error) {
-    el('msg').textContent = 'Could not update order: ' + error.message;
-  }
-}
-</script>
-</body>
-</html>
+async function act(id,action){const {data,error}=await sb.functions.invoke('admin-order-action',{body:{action,order_id:id}});el('msg').textContent=error?(data?.error||error.message):(data?.message||'Updated');await loadOrders();}
+sb.auth.onAuthStateChange((_event,s)=>{session=s;});
+</script></body></html>
