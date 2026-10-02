@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Shakil Store Admin</title>
+<title>Shakil's Choice Admin</title>
 <style>
 :root{--green:#126b50;--ink:#17231d;--line:#e0e9e1}*{box-sizing:border-box}
 body{font-family:Arial,sans-serif;background:#f5f8f5;color:var(--ink);max-width:1100px;margin:auto;padding:18px}
-input,button,textarea,select{font:inherit;padding:11px;border:1px solid #dce4dc;border-radius:9px;max-width:100%}
+input,button,textarea,select{font:inherit;padding:11px;border:1px solid #dce4dc;border-radius:9px;max-width:100%}.image-paste{margin-top:8px;border:2px dashed #b8d2bf;border-radius:14px;padding:22px;text-align:center;background:#f7fbf7;color:#126b50;cursor:pointer;line-height:1.6}.image-paste:focus,.image-paste:hover{border-color:#126b50;background:#eef7ef}.image-preview{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}.image-thumb{position:relative;width:100px}.image-thumb img{width:100px;height:100px;object-fit:cover;border-radius:10px;border:1px solid #dce4dc}.image-thumb button{position:absolute;top:4px;right:4px;border-radius:50%;width:28px;height:28px;padding:0;background:#9c3030}.image-thumb small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
 input,textarea,select{width:100%;background:#fff}button{cursor:pointer;background:var(--green);color:white;border:0;font-weight:bold;width:auto}
 .soft{background:#e8f2eb;color:var(--green)}.danger{background:#9c3030}
 .panel{background:white;border:1px solid var(--line);border-radius:15px;padding:18px;margin:15px 0}
@@ -18,7 +18,7 @@ label{display:block;font-size:14px}.fieldlabel{margin-bottom:5px}
 @media(max-width:600px){body{padding:10px}.formgrid{grid-template-columns:1fr}.wide{grid-column:auto}.product{grid-template-columns:1fr}.product-actions button{flex:1}}
 </style></head>
 <body>
-<h1>Shakil Store — Admin</h1>
+<h1>Shakil's Choice — Admin</h1>
 <p class="muted">Sign in with the Supabase Auth account whose UUID is registered in <code>admin_users</code>. Product changes are sent to a server-side Edge Function. Never place the service-role key in this page or config.js.</p>
 <section class="panel" id="login">
 <h2>Admin sign in</h2><div class="row"><input id="email" type="email" autocomplete="username" placeholder="Admin email"><input id="password" type="password" autocomplete="current-password" placeholder="Password"></div>
@@ -34,7 +34,13 @@ label{display:block;font-size:14px}.fieldlabel{margin-bottom:5px}
 <label class="fieldlabel">Category<input id="pCategory" maxlength="80" required value="General" placeholder="General"></label>
 <label class="fieldlabel">Price (BDT)<input id="pPrice" type="number" min="0" max="9999999999" step="0.01" required placeholder="1450"></label>
 <label class="fieldlabel">Stock quantity<input id="pStock" type="number" min="0" max="1000000" step="1" required value="10"></label>
-<label class="fieldlabel wide">Image URL (optional)<input id="pImage" type="url" maxlength="2000" placeholder="https://..."></label>
+<label class="fieldlabel wide">Main image URL (optional)<input id="pImage" type="url" maxlength="2000" placeholder="https://..."></label>
+<label class="fieldlabel wide">Product pictures
+  <div id="imagePaste" class="image-paste" tabindex="0">📋 <strong>Paste image here</strong><br><span>Press Ctrl+V / long-press paste. You can paste multiple pictures.</span></div>
+  <input id="pImageFiles" type="file" accept="image/*" multiple>
+  <div id="imagePreview" class="image-preview"></div>
+  <p class="muted">Paste or select multiple images. Up to 8 pictures. The first picture becomes the main image.</p>
+</label>
 <label class="fieldlabel wide">Description<textarea id="pDescription" maxlength="3000" rows="3" placeholder="Product details"></textarea></label>
 <label class="fieldlabel wide"><span><input id="pActive" type="checkbox" checked style="width:auto"> Show this product in the store</span></label>
 </div>
@@ -45,10 +51,16 @@ label{display:block;font-size:14px}.fieldlabel{margin-bottom:5px}
 <script src="config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const sb=window.supabase.createClient(CONFIG.supabaseUrl,CONFIG.supabaseAnonKey);
-let session=null, productCache=[];
+let session=null, productCache=[], imageItems=[];
 const el=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=n=>'৳'+Number(n||0).toLocaleString('en-BD');
+const isImageUrl=u=>/^https?:\/\//i.test(String(u||''));
+async function compressImage(file){return new Promise((resolve,reject)=>{const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{const max=1400,scale=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));const ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);c.toBlob(b=>{if(!b)return reject(new Error('Could not process image.'));const r=new FileReader();r.onload=()=>resolve({name:file.name,data:r.result});r.onerror=reject;r.readAsDataURL(b);},'image/webp',.82);};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Invalid image.'));};img.src=url;});}
+function renderImagePreview(){el('imagePreview').innerHTML=imageItems.map((x,i)=>`<div class="image-thumb"><img src="${esc(x.data)}" alt=""><button type="button" onclick="removeImage(${i})">×</button><small>${esc(x.name||'Image '+(i+1))}</small></div>`).join('');}
+function removeImage(i){imageItems.splice(i,1);renderImagePreview();}
+async function addImageFiles(files){for(const file of [...files]){if(!file.type.startsWith('image/'))continue;if(imageItems.length>=8)break;try{imageItems.push(await compressImage(file));}catch(e){el('productMsg').textContent='Could not process '+file.name;}}renderImagePreview();}
+
 async function signIn(){
  const {data,error}=await sb.auth.signInWithPassword({email:el('email').value.trim(),password:el('password').value});
  el('loginMsg').textContent=error?error.message:'Signed in. Checking admin access…';
@@ -64,6 +76,8 @@ async function invokeAdmin(action,payload={}){
  if(data?.error) throw new Error(data.error);
  return data;
 }
+document.getElementById('imagePaste').addEventListener('paste',async ev=>{const files=[...(ev.clipboardData?.items||[])].filter(i=>i.type.startsWith('image/')).map(i=>i.getAsFile()).filter(Boolean);if(files.length){ev.preventDefault();await addImageFiles(files);el('productMsg').textContent='Image pasted. You can paste more pictures.';}});
+el('pImageFiles').addEventListener('change',async ev=>{await addImageFiles(ev.target.files||[]);ev.target.value='';});
 async function loadProducts(){
  el('productMsg').textContent='Loading products…';
  try{
@@ -74,15 +88,15 @@ async function loadProducts(){
 }
 function editProduct(id){
  const p=productCache.find(x=>Number(x.id)===Number(id));if(!p)return;
- el('productId').value=p.id;el('pName').value=p.name||'';el('pCategory').value=p.category||'General';el('pPrice').value=p.price;el('pStock').value=p.stock_quantity??0;el('pImage').value=p.image_url||'';el('pDescription').value=p.description||'';el('pActive').checked=!!p.active;el('productFormTitle').textContent='Edit product #'+p.id;el('saveProductBtn').textContent='Save changes';window.scrollTo({top:0,behavior:'smooth'});
+ el('productId').value=p.id;el('pName').value=p.name||'';el('pCategory').value=p.category||'General';el('pPrice').value=p.price;el('pStock').value=p.stock_quantity??0;el('pImage').value=isImageUrl(p.image_url)?p.image_url:'';imageItems=(Array.isArray(p.image_urls)?p.image_urls:[]).filter(isImageUrl).map((u,i)=>({name:'Saved image '+(i+1),data:u}));if(!imageItems.length&&isImageUrl(p.image_url))imageItems=[{name:'Main image',data:p.image_url}];renderImagePreview();el('pDescription').value=p.description||'';el('pActive').checked=!!p.active;el('productFormTitle').textContent='Edit product #'+p.id;el('saveProductBtn').textContent='Save changes';window.scrollTo({top:0,behavior:'smooth'});
 }
-function resetProductForm(){el('productForm').reset();el('productId').value='';el('pCategory').value='General';el('pStock').value='10';el('pActive').checked=true;el('productFormTitle').textContent='Add a product';el('saveProductBtn').textContent='Save product';}
+function resetProductForm(){imageItems=[];renderImagePreview();el('productForm').reset();el('productId').value='';el('pCategory').value='General';el('pStock').value='10';el('pActive').checked=true;el('productFormTitle').textContent='Add a product';el('saveProductBtn').textContent='Save product';}
 el('productForm').addEventListener('submit',async ev=>{
  ev.preventDefault();
  const price=Number(el('pPrice').value),stock=Number(el('pStock').value),name=el('pName').value.trim(),category=el('pCategory').value.trim(),image=el('pImage').value.trim();
  if(!name||!category||!Number.isFinite(price)||price<0||!Number.isSafeInteger(stock)||stock<0||stock>1000000){el('productMsg').textContent='Check product name, category, price, and whole-number stock quantity.';return;}
  if(image&&!/^https?:\/\//i.test(image)){el('productMsg').textContent='Image URL must start with http:// or https://';return;}
- const product={name,category,price,stock_quantity:stock,image_url:image,description:el('pDescription').value.trim(),active:el('pActive').checked};
+ const product={name,category,price,stock_quantity:stock,image_url:image||((imageItems[0]||{}).data||''),image_urls:imageItems.map(x=>x.data),description:el('pDescription').value.trim(),active:el('pActive').checked};
  el('productMsg').textContent='Saving product…';el('saveProductBtn').disabled=true;
  try{const id=el('productId').value;await invokeAdmin(id?'update':'create',id?{id:Number(id),product}:{product});el('productMsg').textContent='Product saved successfully.';resetProductForm();await loadProducts();}
  catch(e){el('productMsg').textContent='Could not save product: '+e.message;}
