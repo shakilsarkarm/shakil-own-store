@@ -34,12 +34,11 @@ label{display:block;font-size:14px}.fieldlabel{margin-bottom:5px}
 <label class="fieldlabel">Category<input id="pCategory" maxlength="80" required value="General" placeholder="General"></label>
 <label class="fieldlabel">Price (BDT)<input id="pPrice" type="number" min="0" max="9999999999" step="0.01" required placeholder="1450"></label>
 <label class="fieldlabel">Stock quantity<input id="pStock" type="number" min="0" max="1000000" step="1" required value="10"></label>
-<label class="fieldlabel wide">Main image URL (optional)<input id="pImage" type="url" maxlength="2000" placeholder="https://..."></label>
 <label class="fieldlabel wide">Product pictures
   <div id="imagePaste" class="image-paste" tabindex="0">📋 <strong>Paste image here</strong><br><span>Press Ctrl+V / long-press paste. You can paste multiple pictures.</span></div>
   <input id="pImageFiles" type="file" accept="image/*" multiple>
   <div id="imagePreview" class="image-preview"></div>
-  <p class="muted">Paste or select multiple images. Up to 8 pictures. The first picture becomes the main image.</p>
+  <p class="muted">Paste or select as many pictures as you want. There is no app-level image count or size limit. The first picture becomes the main image. Very large files can still be limited by your Supabase Storage/project limits.</p>
 </label>
 <label class="fieldlabel wide">Description<textarea id="pDescription" maxlength="3000" rows="3" placeholder="Product details"></textarea></label>
 <label class="fieldlabel wide"><span><input id="pActive" type="checkbox" checked style="width:auto"> Show this product in the store</span></label>
@@ -56,10 +55,9 @@ const el=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=n=>'৳'+Number(n||0).toLocaleString('en-BD');
 const isImageUrl=u=>/^https?:\/\//i.test(String(u||''));
-async function compressImage(file){return new Promise((resolve,reject)=>{const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{const max=1400,scale=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));const ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);c.toBlob(b=>{if(!b)return reject(new Error('Could not process image.'));const r=new FileReader();r.onload=()=>resolve({name:file.name,data:r.result});r.onerror=reject;r.readAsDataURL(b);},'image/webp',.82);};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Invalid image.'));};img.src=url;});}
-function renderImagePreview(){el('imagePreview').innerHTML=imageItems.map((x,i)=>`<div class="image-thumb"><img src="${esc(x.data)}" alt=""><button type="button" onclick="removeImage(${i})">×</button><small>${esc(x.name||'Image '+(i+1))}</small></div>`).join('');}
-function removeImage(i){imageItems.splice(i,1);renderImagePreview();}
-async function addImageFiles(files){for(const file of [...files]){if(!file.type.startsWith('image/'))continue;if(imageItems.length>=8)break;try{imageItems.push(await compressImage(file));}catch(e){el('productMsg').textContent='Could not process '+file.name;}}renderImagePreview();}
+function renderImagePreview(){el('imagePreview').innerHTML=imageItems.map((x,i)=>`<div class="image-thumb"><img src="${esc(x.preview||x.data||'')}" alt=""><button type="button" onclick="removeImage(${i})">×</button><small>${esc(x.name||'Image '+(i+1))}</small></div>`).join('');}
+function removeImage(i){const x=imageItems[i];if(x?.preview?.startsWith('blob:'))URL.revokeObjectURL(x.preview);imageItems.splice(i,1);renderImagePreview();}
+async function addImageFiles(files){for(const file of [...files]){if(!file.type.startsWith('image/'))continue;imageItems.push({name:file.name,file,preview:URL.createObjectURL(file)});}renderImagePreview();}
 
 async function signIn(){
  const {data,error}=await sb.auth.signInWithPassword({email:el('email').value.trim(),password:el('password').value});
@@ -88,18 +86,28 @@ async function loadProducts(){
 }
 function editProduct(id){
  const p=productCache.find(x=>Number(x.id)===Number(id));if(!p)return;
- el('productId').value=p.id;el('pName').value=p.name||'';el('pCategory').value=p.category||'General';el('pPrice').value=p.price;el('pStock').value=p.stock_quantity??0;el('pImage').value=isImageUrl(p.image_url)?p.image_url:'';imageItems=(Array.isArray(p.image_urls)?p.image_urls:[]).filter(isImageUrl).map((u,i)=>({name:'Saved image '+(i+1),data:u}));if(!imageItems.length&&isImageUrl(p.image_url))imageItems=[{name:'Main image',data:p.image_url}];renderImagePreview();el('pDescription').value=p.description||'';el('pActive').checked=!!p.active;el('productFormTitle').textContent='Edit product #'+p.id;el('saveProductBtn').textContent='Save changes';window.scrollTo({top:0,behavior:'smooth'});
+ el('productId').value=p.id;el('pName').value=p.name||'';el('pCategory').value=p.category||'General';el('pPrice').value=p.price;el('pStock').value=p.stock_quantity??0;imageItems=(Array.isArray(p.image_urls)?p.image_urls:[]).filter(isImageUrl).map((u,i)=>({name:'Saved image '+(i+1),data:u,existing:true}));if(!imageItems.length&&isImageUrl(p.image_url))imageItems=[{name:'Main image',data:p.image_url,existing:true}];renderImagePreview();el('pDescription').value=p.description||'';el('pActive').checked=!!p.active;el('productFormTitle').textContent='Edit product #'+p.id;el('saveProductBtn').textContent='Save changes';window.scrollTo({top:0,behavior:'smooth'});
 }
-function resetProductForm(){imageItems=[];renderImagePreview();el('productForm').reset();el('productId').value='';el('pCategory').value='General';el('pStock').value='10';el('pActive').checked=true;el('productFormTitle').textContent='Add a product';el('saveProductBtn').textContent='Save product';}
+function resetProductForm(){imageItems.forEach(x=>{if(x?.preview?.startsWith('blob:'))URL.revokeObjectURL(x.preview);});imageItems=[];renderImagePreview();el('productForm').reset();el('productId').value='';el('pCategory').value='General';el('pStock').value='10';el('pActive').checked=true;el('productFormTitle').textContent='Add a product';el('saveProductBtn').textContent='Save product';}
 el('productForm').addEventListener('submit',async ev=>{
  ev.preventDefault();
- const price=Number(el('pPrice').value),stock=Number(el('pStock').value),name=el('pName').value.trim(),category=el('pCategory').value.trim(),image=el('pImage').value.trim();
+ const price=Number(el('pPrice').value),stock=Number(el('pStock').value),name=el('pName').value.trim(),category=el('pCategory').value.trim();
  if(!name||!category||!Number.isFinite(price)||price<0||!Number.isSafeInteger(stock)||stock<0||stock>1000000){el('productMsg').textContent='Check product name, category, price, and whole-number stock quantity.';return;}
- if(image&&!/^https?:\/\//i.test(image)){el('productMsg').textContent='Image URL must start with http:// or https://';return;}
- const product={name,category,price,stock_quantity:stock,image_url:image||((imageItems[0]||{}).data||''),image_urls:imageItems.map(x=>x.data),description:el('pDescription').value.trim(),active:el('pActive').checked};
- el('productMsg').textContent='Saving product…';el('saveProductBtn').disabled=true;
- try{const id=el('productId').value;await invokeAdmin(id?'update':'create',id?{id:Number(id),product}:{product});el('productMsg').textContent='Product saved successfully.';resetProductForm();await loadProducts();}
- catch(e){el('productMsg').textContent='Could not save product: '+e.message;}
+ el('productMsg').textContent='Uploading images and saving product…';el('saveProductBtn').disabled=true;
+ try{
+   const uploaded=[];
+   for(const item of imageItems){
+     if(item.existing){uploaded.push(item.data);continue;}
+     if(!item.file)continue;
+     const safe=item.file.name.replace(/[^a-zA-Z0-9._-]/g,'_')||'image';
+     const path=`products/${crypto.randomUUID()}-${safe}`;
+     const {error:upErr}=await sb.storage.from('product-images').upload(path,item.file,{contentType:item.file.type,upsert:false});
+     if(upErr) throw new Error('Image upload failed: '+upErr.message);
+     uploaded.push(`${CONFIG.supabaseUrl}/storage/v1/object/public/product-images/${path}`);
+   }
+   const product={name,category,price,stock_quantity:stock,image_url:uploaded[0]||'',image_urls:uploaded,description:el('pDescription').value.trim(),active:el('pActive').checked};
+   const id=el('productId').value;await invokeAdmin(id?'update':'create',id?{id:Number(id),product}:{product});el('productMsg').textContent='Product saved successfully.';resetProductForm();await loadProducts();
+ }catch(e){el('productMsg').textContent='Could not save product: '+e.message;}
  finally{el('saveProductBtn').disabled=false;}
 });
 async function deleteProduct(id){
